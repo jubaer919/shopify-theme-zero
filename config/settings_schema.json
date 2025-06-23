@@ -1,1 +1,102 @@
-[]
+[
+  {
+    "name": "Theme Settings",
+    "settings": [
+      {
+        "type": "color",
+        "id": "primary_color",
+        "label": "Primary Color",
+        "default": "#1e40af"
+      },
+      {
+        "type": "color",
+        "id": "secondary_color",
+        "label": "Secondary Color",
+        "default": "#f59e0b"
+      },
+      {
+        "type": "color",
+        "id": "tertiary_color",
+        "label": "Tertiary Color",
+        "default": "#10b981"
+      },
+      {
+        "type": "color",
+        "id": "accent_color",
+        "label": "Accent Color",
+        "default": "#ef4444"
+      },
+      {
+        "type": "color",
+        "id": "text_color",
+        "label": "Text Color",
+        "default": "#111827"
+      },
+      {
+        "type": "color",
+        "id": "background_color",
+        "label": "Background Color",
+        "default": "#ffffff"
+      },
+      {
+        "type": "select",
+        "id": "base_font",
+        "label": "Base Font",
+        "default": "Inter",
+        "options": [
+          { "label": "Inter", "value": "Inter" },
+          { "label": "Roboto", "value": "Roboto" },
+          { "label": "Poppins", "value": "Poppins" },
+          { "label": "Lato", "value": "Lato" },
+          { "label": "Open Sans", "value": "Open Sans" },
+          { "label": "Merriweather", "value": "Merriweather" }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "heading_font",
+        "label": "Heading Font",
+        "default": "Poppins",
+        "options": [
+          { "label": "Poppins", "value": "Poppins" },
+          { "label": "Playfair Display", "value": "Playfair Display" },
+          { "label": "Montserrat", "value": "Montserrat" },
+          { "label": "Oswald", "value": "Oswald" },
+          { "label": "Bebas Neue", "value": "Bebas Neue" }
+        ]
+      },
+      {
+        "type": "range",
+        "id": "container_max_width",
+        "label": "Container Max Width (px)",
+        "min": 960,
+        "max": 1440,
+        "step": 20,
+        "default": 1200
+      },
+      {
+        "type": "range",
+        "id": "base_padding",
+        "label": "Base Padding (px)",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "default": 20
+      }
+    ]
+  },
+  {
+    "name": "theme",
+    "settings": [
+      {
+        "type": "range",
+        "id": "container_padding",
+        "label": "Container default padding",
+        "min": 960,
+        "max": 1440,
+        "step": 20,
+        "default": 1200
+      }
+    ]
+  }
+]

@@ -1,0 +1,131 @@
+{% comment %} 
+                    testimonial slider to show case the review of our products 
+{% endcomment %}
+
+{{ 'testimonial.scss.css' | asset_url | stylesheet_tag }}
+
+<div class="testimonial-section">
+  <h2 class="testimonial-heading">
+    {{ section.settings.heading }}
+  </h2>
+  <div class="testimonial-slider">
+    <div class="slider-container">
+      {% for block in section.blocks %}
+        <div class="testimonial-slide">
+          <div class="stars">
+            {% assign rating = block.settings.rating %}
+            {% for i in (1..5) %}
+              {% if i <= rating %}
+                ★
+              {% else %}
+                ☆
+              {% endif %}
+            {% endfor %}
+          </div>
+          <div class="testimonial-content">
+            {{ block.settings.content }}
+          </div>
+          <div class="testimonial-author">
+            {{ block.settings.author }}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <button class="slider-prev">❮</button>
+    <button class="slider-next">❯</button>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function(){
+    const slider = document.querySelector('.testimonial-slider');
+    const sliderContainer = slider.querySelector('.slider-container');
+    const slides = slider.querySelectorAll('.testimonial-slide');
+    const prevBtn = slider.querySelector('.slider-prev');
+    const nextBtn = slider.querySelector('.slider-next');
+  
+    let currentIndex = 0;
+    const slideCount = slides.length;
+    const slideDuration = {{ section.settings.slide_duration }} * 1000;
+  
+    function showSlide(index) {
+      sliderContainer.style.transform = `translateX(-${index * 100}%)`;
+      currentIndex = index;
+    }
+  
+    function nextSlide() {
+      currentIndex = (currentIndex + 1) % slideCount;
+      showSlide(currentIndex);
+    }
+  
+    function prevSlide() {
+      currentIndex = (currentIndex - 1 + slideCount) % slideCount;
+      showSlide(currentIndex);
+    }
+  
+    prevBtn.addEventListener('click', prevSlide);
+    nextBtn.addEventListener('click', nextSlide);
+  
+    let slideInterval = setInterval(nextSlide, slideDuration);
+  
+    slider.addEventListener('mouseenter', () => {clearInterval(slideInterval)});
+    slider.addEventListener('mouseleave', () => {slideInterval = setInterval(nextSlide, slideDuration)})
+  
+    showSlide(0)
+  });
+</script>
+
+{% schema %}
+  {
+    "name": "Testimonials Sliders",
+    "settings": [
+      {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading",
+        "default": "Customer Reviews"
+      }, {
+        "type": "range",
+        "id": "slide_duration",
+        "label": "Slide Duration (second)",
+        "min": 2,
+        "max": 10,
+        "step": 1,
+        "default": 5
+      }
+    ],
+    "blocks": [
+      {
+        "type": "testimonial",
+        "name": "Testimonial",
+        "settings": [
+          {
+            "type": "text",
+            "id": "author",
+            "label": "Author",
+            "default": "Customer name"
+          }, {
+            "type": "richtext",
+            "id": "content",
+            "label": "Content",
+            "default": "<p>This product change my life! highly recomend to everyone</p>"
+          }, {
+            "type": "range",
+            "id": "rating",
+            "label": "Rating",
+            "min": 1,
+            "max": 5,
+            "step": 1,
+            "default": 5
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Testimonials Sliders",
+        "category": "Text"
+      }
+    ]
+  }
+{% endschema %}
