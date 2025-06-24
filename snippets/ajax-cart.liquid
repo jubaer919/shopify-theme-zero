@@ -1,0 +1,141 @@
+{% comment %} 
+          ajax cart
+          update cart (dynamicaly) without reloading full page or send a full request... 
+{% endcomment %}
+
+{{ 'cart.scss.css' | asset_url | stylesheet_tag }}
+
+<div id="ajax-cart-drawer" class="cart-drawer">
+  <button class="close-cart">×</button>
+  <h2 class="cart-heading">Your Cart</h2>
+  <div id="cart-contents"></div>
+
+  <div class="cart-footer">
+    <div class="total">
+      <span>Subtotal:
+      </span>
+      <span class="cart-total">{{ cart.total_price | money }}</span>
+    </div>
+    <a href="/checkout" class="cart-checkout">Checkout</a>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('.cart-icon').addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('ajax-cart-drawer').style.right = '0';
+      updateCartContent();
+    })
+  
+    document.querySelector('.close-cart').addEventListener('click', function() {
+      document.getElementById('ajax-cart-drawer').style.right = '-400px';
+    });
+  
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+      button.addEventListener('click', async function(e) {
+        e.preventDefault();
+        const form = this.closest('form');
+        const variantId = form.querySelector('[name="id"]').value;
+  
+        try {
+          const response = await fetch('/cart/add.js', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({id: variantId, quantity: 1})
+          })
+  
+          if (response.ok) {
+            await updateCartContent();
+            document.getElementById('ajax-cart-drawer').style.right = '0';
+            updateCartCount();
+          }
+          else {
+            console.log('Fail add to cart');
+          }
+        } catch (err) {
+          console.error('Error': err)
+        }
+      })
+    })
+  
+    async function updateCartContent() {
+      const response = await fetch('/cart.js')
+      const cart = await response.json();
+  
+      let cartHTML = '';
+      
+      if (cart.items.length === 0) {
+        cartHTML = '<p>Your Cart is Empty</p>'
+      } else {
+        cartHTML = '<ul class="cart-list">'
+        cart.items.forEach(item => {
+          cartHTML += `
+            <li class="cart-item">
+              <div class="cart-item__image-container">
+                <img src="${item.image}" alt="${item.title}" class="cart-item__image" >
+              </div>
+              <div class="cart-item__description">
+                <h2 class="cart-item__heading">${item.title}</h2>
+                <div>${item.variant_title || 'Default'}</div>
+                <div class="cart-item_details">
+                  <input type="number" min="1" value="${item.quantity}" data-id="${item.key}" class="cart-item__quantity" />
+                  <h2 class="cart-item__price">${shopify.formatMoney(item.line_price)}</h2>
+                  <button data-id="${item.key}" class="cart-item__remove">Remove</button>
+                </div>
+              </div>
+            </li>
+          `;
+        });
+        cartHTML += '</ul>';
+      }
+      
+      document.getElementById('cart-contents').innerHTML = cartHTML;
+      document.querySelector('.cart-total').textContent = shopify.formatMoney(cart.total_price);
+  
+      document.querySelectorAll('.cart-item__quantity').forEach(input => {
+        input.addEventListener('change', updateItemQuantity)
+      })
+  
+      document.querySelectorAll('.cart-item__remove').forEach(button => {
+        button.addEventListener('click', removeCartItems)
+      })
+    }
+  
+    async function updateCartCount() {
+      const response = await fetch('/cart.js');
+      const cart = await response.json();
+  
+      document.querySelector('.cart-item__count').textContent = cart.item_count;
+    }
+  
+    async function updateItemQuantity(e) {
+      const key = e.target.dataset.id;
+      const quantity = e.target.value;
+  
+      await fetch('/cart/change.js', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({id: key, quantity: quantity})
+      })
+  
+      updateCartContent();
+      updateCartCount();
+    }
+  
+    async function removeCartItems(e) {
+      const key = e.target.dataset.id;
+  
+      await fetch('/cart/change.js', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({id: key, quantity: 0})
+      })
+  
+      updateCartContent();
+      updateCartCount();
+    }
+  
+    updateCartCount();
+  })
+</script>
